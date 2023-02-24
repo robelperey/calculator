@@ -1,0 +1,52 @@
+*,
+*::before,
+*::after {
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
+}
+
+body {
+  min-height: 100svh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.container {
+  padding: 2rem;
+  background-color: burlywood;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.screen {
+  text-align: right;
+  padding: 1rem;
+  width: 100%;
+  background-color: white;
+  margin-bottom: 1rem;
+}
+
+.keypad {
+  width: 100%;
+  padding: 1rem;
+  background-color: wheat;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+}
+
+.btn {
+  background-color: wheat;
+  text-align: center;
+  padding: 1rem;
+}
+
+.btn:hover {
+  cursor: pointer;
+  background-color: white;
+  border-radius: 50%;
+}
