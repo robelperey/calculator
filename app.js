@@ -1,12 +1,12 @@
 // grab elements from html
 const keypadElem = document.querySelector(".keypad");
 const screenElem = document.querySelector(".screen");
+const previousOperandElem = document.querySelector(".previous-operand");
+const resultElem = document.querySelector(".result");
 
-// initialise some utility variables
-let stored = [];
-let firstSet = 0;
+let currentOperand = "";
+let previousOperand = "";
 let operator = "";
-let divideByZero = false;
 
 function add(x, y) {
   return x + y;
@@ -22,17 +22,13 @@ function multiply(x, y) {
 
 function divide(x, y) {
   if (y === 0) {
-    return "No can do!";
+    return "error";
   }
 
   return x / y;
 }
 
 function operate(operator, x, y) {
-  if (isNaN(x) || isNaN(y)) {
-    return "No can do!";
-  }
-
   switch (operator) {
     case "+":
       return add(x, y);
@@ -48,87 +44,97 @@ function operate(operator, x, y) {
   }
 }
 
-function updateScreen(value) {
-  screenElem.textContent = value;
-}
-
-function calculate(operator, firstSet, currentSet) {
-  return operate(operator, firstSet, currentSet);
-}
-
-function clear() {
-  stored = [];
-  updateScreen(0);
-  firstSet = 0;
-  operator = "";
-  console.log("cleared!");
-  return;
-}
-
-// when btn is clicked inside keypad, get the textContent
-
 keypadElem.addEventListener("click", (e) => {
+  const key = e.target.textContent;
+
   if (e.target.classList.contains("keypad")) {
     return;
   }
 
-  // clear the stored values
-  if (e.target.textContent === "c") {
-    clear();
+  if (key === "c") {
+    currentOperand = "";
+    previousOperand = "";
+    previousOperandElem.textContent = previousOperand;
+    resultElem.textContent = currentOperand;
     return;
   }
 
-  if (e.target.textContent === "del") {
-    if (stored.length > 1) {
-      stored.pop();
-      updateScreen(stored.join(""));
+  if (key === "del") {
+    if (currentOperand) {
+      currentOperand = currentOperand.slice(0, currentOperand.length - 1);
+      resultElem.textContent = currentOperand;
+      return;
     } else {
-      stored = [];
-      updateScreen(0);
+      currentOperand = previousOperand;
+      resultElem.textContent = currentOperand;
+      previousOperand = "";
+      previousOperandElem.textContent = previousOperand;
+      return;
     }
-
-    console.log(stored);
-
-    return;
   }
 
-  // if "=" is clicked
-  if (e.target.textContent === "=") {
-    if (!firstSet) {
+  if (key === "=") {
+    let result = 0;
+
+    if (resultElem.textContent === "error") {
       return;
     }
 
-    let result = calculate(operator, firstSet, +stored.join(""));
+    if (operator && previousOperand && currentOperand) {
+      result = operate(operator, +previousOperand, +currentOperand);
+    }
 
-    firstSet = result;
-    updateScreen(result);
+    if (result === "error") {
+      currentOperand = "";
+      previousOperand = "";
+      result = 0;
+      resultElem.textContent = "error";
+      previousOperandElem.textContent = "";
+      return;
+    }
 
-    stored = [];
+    currentOperand = result;
+    resultElem.textContent = currentOperand;
+    previousOperand = "";
+    previousOperandElem.textContent = previousOperand;
+    operator = "";
 
     return;
   }
 
-  //
   if (e.target.classList.contains("operator")) {
-    if (firstSet == 0) {
-      operator = e.target.textContent;
-      firstSet = +stored.join("");
-      stored = [];
-    } else {
-      let result = operate(operator, firstSet, +stored.join(""));
-
-      operator = e.target.textContent;
-
-      updateScreen(result);
-
-      firstSet = result;
-
-      stored = [];
+    if (resultElem.textContent === "error") {
+      return;
     }
-  } else {
-    stored.push(e.target.textContent);
-    updateScreen(stored.join(""));
 
-    console.log(stored);
+    if (currentOperand === "") {
+      return;
+    }
+
+    let result = 0;
+
+    if (previousOperand === "") {
+      previousOperand = currentOperand;
+      currentOperand = "";
+      previousOperandElem.textContent = `${previousOperand} ${key}`;
+      resultElem.textContent = currentOperand;
+      operator = key;
+    } else {
+      let result = operate(operator, +previousOperand, +currentOperand);
+      operator = key;
+      resultElem.textContent = "";
+      previousOperandElem.textContent = `${result} ${key}`;
+      previousOperand = result;
+      currentOperand = "";
+    }
+
+    return;
   }
+
+  currentOperand += key;
+  resultElem.textContent = currentOperand;
+
+  // console.log(`${previousOperand} ${operator} ${currentOperand}`);
+
+  e.preventDefault();
 });
