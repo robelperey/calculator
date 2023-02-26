@@ -93,7 +93,7 @@ keypadElem.addEventListener("click", (e) => {
       return;
     }
 
-    currentOperand = result;
+    currentOperand = result.toString();
     resultElem.textContent = currentOperand;
     previousOperand = "";
     previousOperandElem.textContent = previousOperand;
@@ -119,6 +119,7 @@ keypadElem.addEventListener("click", (e) => {
       previousOperandElem.textContent = `${previousOperand} ${key}`;
       resultElem.textContent = currentOperand;
       operator = key;
+      return;
     } else {
       let result = operate(operator, +previousOperand, +currentOperand);
       operator = key;
@@ -126,6 +127,7 @@ keypadElem.addEventListener("click", (e) => {
       previousOperandElem.textContent = `${result} ${key}`;
       previousOperand = result;
       currentOperand = "";
+      return;
     }
 
     return;
